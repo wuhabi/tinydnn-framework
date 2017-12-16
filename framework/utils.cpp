@@ -170,7 +170,8 @@ void train_net(Conf &conf,
     if (test_x.size() > 0) {
       std::vector<vec_t> pred = net.test(test_x);
       float_t auc = calc_auc(test_y, pred);
-      std::cout << "auc: " << auc << std::endl;
+      float_t acc = calc_acc(test_y, pred);
+      std::cout << "auc " << auc << " " << "acc " << acc << std::endl;
     }
 
     disp.restart(train_x.size());
@@ -203,30 +204,47 @@ bool _comp(vec_t a, vec_t b) {
   return (a[1]>b[1]);
 }
 
-float_t calc_auc(std::vector<vec_t> &y,
-                 std::vector<vec_t> &pred) {
-  vec_t yy, pp;
-  for (auto a : y) yy.push_back(a[0]);
-  for (auto b : pred) pp.push_back(b[0]);
+float_t calc_auc(std::vector<vec_t> &y, std::vector<vec_t> &pred) {
+    vec_t yy, pp;
+    for (auto a : y) yy.push_back(a[0]);
+    for (auto b : pred) pp.push_back(b[0]);
 
-  size_t n = pp.size();
-  std::vector<vec_t> yp;
-  for (size_t i=0; i<yy.size(); ++i) {
-    vec_t elem;
-    elem.push_back(yy[i]);
-    elem.push_back(pp[i]);
-    yp.push_back(elem);
-  }
-  std::sort(yp.begin(), yp.end(), _comp);
-  float_t np = 0.0, nn = 0.0;
+    size_t n = pp.size();
+    std::vector<vec_t> yp;
+    for (size_t i=0; i<yy.size(); ++i) {
+        vec_t elem;
+        elem.push_back(yy[i]);
+        elem.push_back(pp[i]);
+        yp.push_back(elem);
+    }
+    std::sort(yp.begin(), yp.end(), _comp);
+    float_t np = 0.0, nn = 0.0;
 
-  for (auto& x : yy) {
-    if (x > 0) np += 1.0;
-    else nn += 1.0;
-  }
-  float_t s = 0.0;
-  for (size_t j=0; j<yp.size(); ++j) {
-    if (yp[j][0] > 0) s += (n-j);
-  }
-  return (s-np*(np+1)*0.5)/(np*nn);
+    for (auto& x : yy) {
+        if (x > 0) np += 1.0;
+        else nn += 1.0;
+    }
+    float_t s = 0.0;
+    for (size_t j=0; j<yp.size(); ++j) {
+        if (yp[j][0] > 0) s += (n-j);
+    }
+    return (s-np*(np+1)*0.5)/(np*nn);
+}
+
+float_t calc_acc(std::vector<vec_t> &labels, std::vector<vec_t> &preds) {
+    vec_t yy, pp;
+    for (auto a : labels) yy.push_back(a[0]);
+    for (auto b : preds) pp.push_back(b[0]);
+
+    float_t cnt = 0;
+    for (size_t i=0; i<yy.size(); ++i) {
+        if (pp[i] > 0.5 && yy[i] > 0.5) {
+            cnt += 1;
+        }
+        if (pp[i] < 0.5 && yy[i] < 0.5) {
+            cnt += 1;
+        }
+    }
+    float_t acc = cnt / yy.size();
+    return acc;
 }
