@@ -29,5 +29,5 @@ void train_net(Conf &conf,
                std::vector<vec_t> &test_x,
                std::vector<vec_t> &test_y);
 
-float_t calc_auc(std::vector<vec_t> &y,
-                 std::vector<vec_t> &pred);
+float_t calc_auc(std::vector<vec_t> &label, std::vector<vec_t> &pred);
+float_t calc_acc(std::vector<vec_t> &label, std::vector<vec_t> &pred);
