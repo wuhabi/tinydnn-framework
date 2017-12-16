@@ -4,12 +4,7 @@
 
 using namespace tiny_dnn;
 
-void test_f() {
-    std::cout << "[wuhaibing] test" << std::endl;
-}
-
-void parse_conf(const std::string conf_file,
-               Conf &conf) {
+void parse_conf(const std::string conf_file, Conf &conf) {
   std::ifstream fin(conf_file);
   if (!fin) {
     throw nn_error("failed to open file: "+conf_file);
@@ -122,7 +117,7 @@ void parse_input(Conf conf,
   }
 
   _parse_input(train_file, train_x, train_y, dim_input);
-  if (test_file != "XXX") {
+  if (test_file != "XX") {
     _parse_input(test_file, test_x, test_y, dim_input);
   }
 }

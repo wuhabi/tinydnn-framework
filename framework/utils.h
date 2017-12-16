@@ -11,8 +11,6 @@ typedef std::unordered_map<std::string,std::string> Conf;
 
 void parse_conf(const std::string conf_file, Conf &conf);
 
-void test_f();
-
 void parse_input(Conf conf,
                 std::vector<vec_t> &train_x,
                 std::vector<vec_t> &train_y,
