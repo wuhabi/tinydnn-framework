@@ -1,3 +1,5 @@
+// wuhaibing, 2017-12-16
+
 #include "tiny_dnn/tiny_dnn.h"
 #include "utils.h"
 
