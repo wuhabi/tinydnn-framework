@@ -1,56 +1,16 @@
-#include "tiny_dnn/tiny_dnn.h"
+//wuhaibing, 2017-12-16
+
+#include "utils.h"
 
 using namespace tiny_dnn;
-using namespace tiny_dnn::layers;
-using namespace tiny_dnn::activation;
 
-using namespace std;
-
-void parse_conf(const string conf_file,
-               unordered_map<string,string> &conf);
-void parse_input(unordered_map<string,string> conf,
-                std::vector<vec_t> &train_x,
-                std::vector<vec_t> &train_y,
-                std::vector<vec_t> &test_x,
-                std::vector<vec_t> &test_y);
-void set_architecture(unordered_map<string,string> conf,
-                     network<sequential> &net);
-template <typename Opt>
-void set_optimizer(unordered_map<string,string> &conf,
-                   Opt &opt);
-void train_net(unordered_map<string,string> &conf,
-               network<sequential> &net,
-               std::vector<vec_t> &train_x,
-               std::vector<vec_t> &train_y,
-               std::vector<vec_t> &test_x,
-               std::vector<vec_t> &test_y);
-float_t calc_auc(std::vector<vec_t> &y,
-                 std::vector<vec_t> &pred);
-
-int main(int argc, char** argv) {
-  if (argc != 2) {
-    throw nn_error("pls specify config file");
-  }
-
-  std::string conf_file = argv[1];
-  std::unordered_map<std::string,std::string> conf;
-  parse_conf(conf_file, conf);
-
-  std::vector<vec_t> train_x, test_x;
-  std::vector<vec_t> train_y, test_y;
-  parse_input(conf, train_x, train_y, test_x, test_y);
-
-  network<sequential> net;
-  set_architecture(conf, net);
-
-  train_net(conf, net, train_x, train_y, test_x, test_y);
-
-  return 0;
+void test_f() {
+    std::cout << "[wuhaibing] test" << std::endl;
 }
 
 void parse_conf(const std::string conf_file,
-               unordered_map<string,string> &conf) {
-  ifstream fin(conf_file);
+               Conf &conf) {
+  std::ifstream fin(conf_file);
   if (!fin) {
     throw nn_error("failed to open file: "+conf_file);
   }
@@ -66,7 +26,7 @@ void parse_conf(const std::string conf_file,
     }
     //std::cout << line << std::endl;
     size_t found = line.find_first_of(":");
-    if (found == string::npos) {
+    if (found == std::string::npos) {
       throw nn_error("invalid config format");
     }
     std::string conf_key = line.substr(0, found);
@@ -109,7 +69,7 @@ void _parse_input(std::string input_file,
                  std::vector<vec_t> &data_x,
                  std::vector<vec_t> &data_y,
                  size_t dim_input) {
-  ifstream fin(input_file);
+  std::ifstream fin(input_file);
   if (!fin) {
     throw nn_error("failed to open file: "+input_file);
   }
@@ -120,7 +80,7 @@ void _parse_input(std::string input_file,
     if (line.size() <= 0) {
       continue;
     }
-    stringstream ss(line);
+    std::stringstream ss(line);
     float_t target;
     float_t fea;
     vec_t feas, targets;
@@ -143,7 +103,7 @@ void _parse_input(std::string input_file,
   }
 }
 
-void parse_input(unordered_map<string,string> conf,
+void parse_input(Conf conf,
                 std::vector<vec_t> &train_x,
                 std::vector<vec_t> &train_y,
                 std::vector<vec_t> &test_x,
@@ -167,15 +127,13 @@ void parse_input(unordered_map<string,string> conf,
   }
 }
 
-void set_architecture(unordered_map<string,string> conf,
-                     network<sequential> &net) {
-  std::string net_arch_file = conf["net"];
-  net.load(net_arch_file, content_type::model, file_format::json);
+void set_architecture(Conf conf, network<sequential> &net) {
+    std::string net_arch_file = conf["net"];
+    net.load(net_arch_file, content_type::model, file_format::json);
 }
 
 template <typename Opt>
-void set_optimizer(unordered_map<string,string> &conf,
-                   Opt &opt) {
+void set_optimizer(Conf &conf, Opt &opt) {
   std::string optimizer = conf["optimizer"];
   std::string learn_rate = conf["learn_rate"];
   std::string mu = conf["momentum"];
@@ -183,8 +141,8 @@ void set_optimizer(unordered_map<string,string> &conf,
   float_t lr = std::stof(learn_rate);
   float_t mum = std::stof(mu);
 
-  if (optimizer != "momentum" && 
-      optimizer != "adagrad" && 
+  if (optimizer != "momentum" &&
+      optimizer != "adagrad" &&
       optimizer != "RMSprop") {
     throw nn_error("invalid optimizer: "+optimizer);
   }
@@ -193,7 +151,7 @@ void set_optimizer(unordered_map<string,string> &conf,
   opt.mu = mum;
 }
 
-void train_net(unordered_map<string,string> &conf,
+void train_net(Conf &conf,
                network<sequential> &net,
                std::vector<vec_t> &train_x,
                std::vector<vec_t> &train_y,
@@ -247,7 +205,7 @@ void train_net(unordered_map<string,string> &conf,
 }
 
 bool _comp(vec_t a, vec_t b) {
-  return (a[1]>b[1]); 
+  return (a[1]>b[1]);
 }
 
 float_t calc_auc(std::vector<vec_t> &y,
