@@ -1,3 +1,5 @@
 [todo]
-to support image classification
-understanding how layers are connected with c++ implementation
+add qlq example
+add text classification example
+support image classification
+understand how layers are connected with c++ implementation
